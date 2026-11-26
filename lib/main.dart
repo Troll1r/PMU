@@ -1,7 +1,12 @@
-// Лабораторная работа №3. Список карточек.
+// Лабораторная работа №3. Карточки как в лекции.
 //
-// Вся лабораторная написана в этом одном файле, чтобы было проще.
-// На экране — список карточек, в каждой есть картинка и текст.
+// Всё в одном файле:
+// - три карточки в Column;
+// - у каждой карточки картинка, заголовок, описание и иконка;
+// - карточки оранжевые, как в видео.
+//
+// В видео картинки загружаются по URL через Image.network.
+// Здесь картинки лежат в assets/images, чтобы всё работало без интернета.
 
 import 'package:flutter/material.dart';
 
@@ -15,129 +20,114 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ПМУ',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
-      home: const BooksPage(),
+      home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.orange,
+          foregroundColor: Colors.black,
+          title: const Text('Flutter is gorgeous'),
+        ),
+        body: const MyWidget(),
+      ),
     );
   }
 }
 
-class Book {
-  const Book({
-    required this.title,
-    required this.author,
-    required this.image,
-    required this.description,
+class _CardData {
+  const _CardData(
+    this.title,
+    this.descriptionText, {
+    required this.icon,
+    required this.imagePath,
   });
 
   final String title;
-  final String author;
-  final String image;
-  final String description;
+  final String descriptionText;
+  final IconData icon;
+  final String imagePath;
 }
 
-const List<Book> books = <Book>[
-  Book(
-    title: 'Dart в действии',
-    author: 'Эрик Фриман',
-    image: 'assets/images/dart_in_action.png',
-    description: 'Практическое руководство по современному Dart.',
-  ),
-  Book(
-    title: 'Чистый код',
-    author: 'Роберт Мартин',
-    image: 'assets/images/clean_code.png',
-    description: 'Как писать понятный и поддерживаемый код.',
-  ),
-  Book(
-    title: 'Краткая история времени',
-    author: 'Стивен Хокинг',
-    image: 'assets/images/brief_history_of_time.png',
-    description: 'От Большого взрыва до чёрных дыр.',
-  ),
-  Book(
-    title: 'Властелин колец',
-    author: 'Дж. Р. Р. Толкин',
-    image: 'assets/images/lotr.png',
-    description: 'История о хоббитах, Кольце и Средиземье.',
-  ),
-  Book(
-    title: 'История России',
-    author: 'А. С. Орлов',
-    image: 'assets/images/russian_history.png',
-    description: 'Основные события и личности отечественной истории.',
-  ),
-];
-
-class BooksPage extends StatelessWidget {
-  const BooksPage({super.key});
+class MyWidget extends StatelessWidget {
+  const MyWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Column(
+    final data = <_CardData>[
+      const _CardData(
+        'Dart в действии',
+        'Эрик Фриман',
+        icon: Icons.code,
+        imagePath: 'assets/images/dart_in_action.png',
+      ),
+      const _CardData(
+        'Чистый код',
+        'Роберт Мартин',
+        icon: Icons.check_circle_outline,
+        imagePath: 'assets/images/clean_code.png',
+      ),
+      const _CardData(
+        'Властелин колец',
+        'Дж. Р. Р. Толкин',
+        icon: Icons.auto_awesome,
+        imagePath: 'assets/images/lotr.png',
+      ),
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: data.map((item) => _Card(data: item)).toList(),
+      ),
+    );
+  }
+}
+
+class _Card extends StatelessWidget {
+  const _Card({required this.data});
+
+  final _CardData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.orange,
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text('Книжная полка'),
-            Text(
-              'Кирюшин А.П. ПИбд-32',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                data.imagePath,
+                width: 70,
+                height: 70,
+                fit: BoxFit.cover,
+              ),
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    data.title,
+                    style: const TextStyle(fontSize: 24, color: Colors.black),
+                  ),
+                  Text(
+                    data.descriptionText,
+                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+            Icon(data.icon, size: 20, color: Colors.black),
           ],
         ),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: books.length,
-        itemBuilder: (BuildContext context, int index) {
-          final book = books[index];
-
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            clipBehavior: Clip.antiAlias,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Image.asset(
-                  book.image,
-                  width: 100,
-                  height: 150,
-                  fit: BoxFit.cover,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          book.title,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          book.author,
-                          style: TextStyle(color: Colors.grey[700]),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          book.description,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }
