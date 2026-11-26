@@ -1,9 +1,12 @@
 // Лабораторная работа №4. Лайки, SnackBar и детали.
 //
-// Всё по-прежнему в одном файле:
-// - на карточке есть кнопка-сердечко;
-// - при нажатии показывается SnackBar;
-// - при нажатии на саму карточку открывается экран с деталями.
+// Стиль карточек — как в лекции: оранжевые карточки с книгой.
+// Добавлено:
+// - сердечко для лайка;
+// - SnackBar при нажатии;
+// - экран с деталями при нажатии на карточку.
+//
+// Всё в одном файле.
 
 import 'package:flutter/material.dart';
 
@@ -17,69 +20,65 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ПМУ',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
-      home: const BooksPage(),
+      home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.orange,
+          foregroundColor: Colors.black,
+          title: const Text('Flutter is gorgeous'),
+        ),
+        body: const MyWidget(),
+      ),
     );
   }
 }
 
-class Book {
-  const Book({
-    required this.title,
-    required this.author,
-    required this.image,
-    required this.description,
+class _CardData {
+  const _CardData(
+    this.title,
+    this.descriptionText, {
+    required this.imagePath,
+    required this.details,
   });
 
   final String title;
-  final String author;
-  final String image;
-  final String description;
+  final String descriptionText;
+  final String imagePath;
+  final String details;
 }
 
-const List<Book> books = <Book>[
-  Book(
-    title: 'Dart в действии',
-    author: 'Эрик Фриман',
-    image: 'assets/images/dart_in_action.png',
-    description: 'Практическое руководство по современному Dart.',
-  ),
-  Book(
-    title: 'Чистый код',
-    author: 'Роберт Мартин',
-    image: 'assets/images/clean_code.png',
-    description: 'Как писать понятный и поддерживаемый код.',
-  ),
-  Book(
-    title: 'Краткая история времени',
-    author: 'Стивен Хокинг',
-    image: 'assets/images/brief_history_of_time.png',
-    description: 'От Большого взрыва до чёрных дыр.',
-  ),
-  Book(
-    title: 'Властелин колец',
-    author: 'Дж. Р. Р. Толкин',
-    image: 'assets/images/lotr.png',
-    description: 'История о хоббитах, Кольце и Средиземье.',
-  ),
-  Book(
-    title: 'История России',
-    author: 'А. С. Орлов',
-    image: 'assets/images/russian_history.png',
-    description: 'Основные события и личности отечественной истории.',
-  ),
-];
-
-class BooksPage extends StatefulWidget {
-  const BooksPage({super.key});
+class MyWidget extends StatefulWidget {
+  const MyWidget({super.key});
 
   @override
-  State<BooksPage> createState() => _BooksPageState();
+  State<MyWidget> createState() => _MyWidgetState();
 }
 
-class _BooksPageState extends State<BooksPage> {
+class _MyWidgetState extends State<MyWidget> {
+  static const List<_CardData> _data = <_CardData>[
+    _CardData(
+      'Dart в действии',
+      'Эрик Фриман',
+      imagePath: 'assets/images/dart_in_action.png',
+      details:
+          'Практическое руководство по современному Dart: '
+          'коллекции, асинхронность и тесты.',
+    ),
+    _CardData(
+      'Чистый код',
+      'Роберт Мартин',
+      imagePath: 'assets/images/clean_code.png',
+      details:
+          'Принципы написания понятного, поддерживаемого и надёжного кода.',
+    ),
+    _CardData(
+      'Властелин колец',
+      'Дж. Р. Р. Толкин',
+      imagePath: 'assets/images/lotr.png',
+      details: 'Эпическая история о хоббитах, Кольце Всевластия и Средиземье.',
+    ),
+  ];
+
   final Set<int> _liked = <int>{};
 
   void _toggleLike(int index) {
@@ -98,125 +97,133 @@ class _BooksPageState extends State<BooksPage> {
     );
   }
 
-  void _openDetails(Book book) {
+  void _openDetails(_CardData data) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => BookDetailsPage(book: book),
+        builder: (BuildContext context) => _BookDetailsPage(data: data),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text('Книжная полка'),
-            Text(
-              'Кирюшин А.П. ПИбд-32',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          for (var i = 0; i < _data.length; i++)
+            _Card(
+              data: _data[i],
+              isLiked: _liked.contains(i),
+              onLike: () => _toggleLike(i),
+              onTap: () => _openDetails(_data[i]),
             ),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: books.length,
-        itemBuilder: (BuildContext context, int index) {
-          final book = books[index];
-          final isLiked = _liked.contains(index);
-
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: () => _openDetails(book),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Image.asset(
-                    book.image,
-                    width: 100,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            book.title,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            book.author,
-                            style: TextStyle(color: Colors.grey[700]),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            book.description,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: isLiked ? 'Убрать лайк' : 'Поставить лайк',
-                    onPressed: () => _toggleLike(index),
-                    icon: Icon(
-                      isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+        ],
       ),
     );
   }
 }
 
-class BookDetailsPage extends StatelessWidget {
-  const BookDetailsPage({super.key, required this.book});
+class _Card extends StatelessWidget {
+  const _Card({
+    required this.data,
+    required this.isLiked,
+    required this.onLike,
+    required this.onTap,
+  });
 
-  final Book book;
+  final _CardData data;
+  final bool isLiked;
+  final VoidCallback onLike;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.orange,
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  data.imagePath,
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      data.title,
+                      style: const TextStyle(fontSize: 24, color: Colors.black),
+                    ),
+                    Text(
+                      data.descriptionText,
+                      style: const TextStyle(fontSize: 14, color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: isLiked ? 'Убрать лайк' : 'Поставить лайк',
+                onPressed: onLike,
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BookDetailsPage extends StatelessWidget {
+  const _BookDetailsPage({required this.data});
+
+  final _CardData data;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(book.title)),
+      appBar: AppBar(
+        backgroundColor: Colors.orange,
+        foregroundColor: Colors.black,
+        title: Text(data.title),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[
-          Image.asset(book.image, height: 300, fit: BoxFit.contain),
+          Image.asset(data.imagePath, height: 300, fit: BoxFit.contain),
           const SizedBox(height: 16),
           Text(
-            book.title,
+            data.title,
             style: Theme.of(context).textTheme.headlineSmall
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            book.author,
-            style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+            data.descriptionText,
+            style: TextStyle(fontSize: 18, color: Colors.grey[800]),
           ),
           const SizedBox(height: 16),
-          Text(
-            book.description,
-            style: const TextStyle(fontSize: 16, height: 1.4),
-          ),
+          Text(data.details, style: const TextStyle(fontSize: 16, height: 1.4)),
         ],
       ),
     );

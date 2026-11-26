@@ -10,8 +10,9 @@ void main() {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('Книжная полка'), findsOneWidget);
-    expect(find.byIcon(Icons.favorite_border), findsWidgets);
+    expect(find.text('Flutter is gorgeous'), findsOneWidget);
+    expect(find.byType(Card), findsNWidgets(3));
+    expect(find.byIcon(Icons.favorite_border), findsNWidgets(3));
 
     await tester.tap(find.byIcon(Icons.favorite_border).first);
     await tester.pump();
@@ -19,15 +20,13 @@ void main() {
     expect(find.byIcon(Icons.favorite), findsOneWidget);
     expect(find.text('Лайк поставлен'), findsOneWidget);
 
-    // Даём SnackBar исчезнуть, чтобы он не мешал нажать на карточку.
+    // Ждём, пока SnackBar исчезнет.
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Dart в действии').first);
     await tester.pumpAndSettle();
 
-    expect(find.byType(BookDetailsPage), findsOneWidget);
-    expect(find.text('Dart в действии'), findsWidgets);
-    expect(find.text('Эрик Фриман'), findsWidgets);
+    expect(find.textContaining('Практическое руководство'), findsOneWidget);
   });
 }
