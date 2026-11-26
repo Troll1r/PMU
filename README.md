@@ -1,17 +1,26 @@
-# pmu
+# ПМУ — лабораторные работы
 
-A new Flutter project.
+Учебный Flutter-проект по дисциплине ПМУ.
 
-## Getting Started
+- **Студент:** Кирюшин А.П.
+- **Группа:** ПИбд-32
 
-This project is a starting point for a Flutter application.
+## Лабораторные работы
 
-A few resources to get you started if this is your first Flutter project:
+| № | Ветка | Что сделано |
+|---|-------|-------------|
+| 1 | `lab1` | Flutter-проект собран и запущен на Android; ФИО и группа выведены в AppBar |
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Запуск
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run
+```
+
+Для запуска на Android нужен эмулятор или подключённое устройство:
+
+```bash
+flutter emulators --launch Medium_Phone_API_37.0
+flutter run -d emulator-5554
+```
