@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 
-import 'screens/books_screen.dart';
+import 'core/api_client.dart';
+import 'data/course_repository.dart';
+import 'data/http_course_repository.dart';
+import 'screens/courses_screen.dart';
 
 void main() {
-  runApp(const PmuApp());
+  final courseRepository = HttpCourseRepository(ApiClient());
+  runApp(PmuApp(courseRepository: courseRepository));
 }
 
 class PmuApp extends StatelessWidget {
-  const PmuApp({super.key});
+  const PmuApp({super.key, required this.courseRepository});
+
+  final CourseRepository courseRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +24,7 @@ class PmuApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: const BooksScreen(),
+      home: CoursesScreen(repository: courseRepository),
     );
   }
 }
