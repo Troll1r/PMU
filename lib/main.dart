@@ -1,122 +1,116 @@
-import 'package:flutter/material.dart';
+// Лабораторная работа №2. Основы Dart.
+// Запуск: dart run lib/main.dart
+//
+// В этом файле специально всё написано просто и в одном месте.
+// Используются: класс, enum, циклы, generics, анонимные функции,
+// Future и extension.
+//
+// ignore_for_file: avoid_print
 
-void main() {
-  runApp(const MyApp());
-}
+enum Genre { fantasy, science, programming }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ПМУ — лабораторные работы',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Кирюшин А.П. ПИбд-32'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+class Book {
+  Book(this.title, this.author, this.year, this.genre, {this.isRead = false});
 
   final String title;
+  final String author;
+  final int year;
+  final Genre genre;
+  bool isRead;
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  void read() {
+    isRead = true;
   }
 
   @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
+  String toString() {
+    final status = isRead ? 'прочитана' : 'не прочитана';
+    return '$title — $author ($year), ${genre.name}, $status';
+  }
+}
+
+// Generics: коробка может хранить что угодно.
+class Box<T> {
+  final List<T> items = <T>[];
+
+  void add(T item) {
+    items.add(item);
+  }
+
+  List<T> where(bool Function(T) test) {
+    return items.where(test).toList();
+  }
+}
+
+// Extension: добавляем статистику к обычному списку книг.
+extension BookStats on List<Book> {
+  int get readCount {
+    var count = 0;
+    for (final book in this) {
+      if (book.isRead) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  double get averageYear {
+    var sum = 0;
+    for (final book in this) {
+      sum += book.year;
+    }
+    return sum / length;
+  }
+}
+
+// Future: имитация загрузки данных с сервера.
+Future<List<Book>> loadBooks() async {
+  await Future<void>.delayed(const Duration(milliseconds: 300));
+  return <Book>[
+    Book('Dart в действии', 'Эрик Фриман', 2022, Genre.programming),
+    Book('Чистый код', 'Роберт Мартин', 2008, Genre.programming, isRead: true),
+    Book(
+      'Властелин колец',
+      'Дж. Р. Р. Толкин',
+      1954,
+      Genre.fantasy,
+      isRead: true,
+    ),
+    Book('Краткая история времени', 'Стивен Хокинг', 1988, Genre.science),
+  ];
+}
+
+Future<void> main() async {
+  final books = await loadBooks();
+
+  final box = Box<Book>();
+  for (final book in books) {
+    box.add(book);
+  }
+
+  print('Всего книг: ${box.items.length}');
+  print('Прочитано: ${books.readCount}');
+  print('Средний год: ${books.averageYear.toStringAsFixed(1)}');
+
+  // Анонимная функция внутри where.
+  final unread = box.where((book) => !book.isRead);
+  print('\nНе прочитано:');
+  for (final book in unread) {
+    print('  $book');
+  }
+
+  // Метод класса меняет состояние объекта.
+  books.first.read();
+  print('\nПосле чтения: ${books.first}');
+
+  // Анонимная функция внутри map.
+  final years = books.map((book) => book.year).toList();
+  print('Годы изданий: $years');
+
+  // Обычный цикл while.
+  var index = 0;
+  while (index < 2) {
+    print('Книга ${index + 1}: ${books[index].title}');
+    index++;
   }
 }

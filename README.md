@@ -28,8 +28,9 @@ flutter run -d emulator-5554
 
 ## Лабораторная 2
 
-Демонстрация возможностей Dart находится в `lib/lab2/dart_basics.dart`:
+Вся лабораторная написана в одном файле `lib/main.dart` и запускается
+в консоли (эмулятор для неё не нужен):
 
 ```bash
-dart run lib/lab2/dart_basics.dart
+dart run lib/main.dart
 ```
