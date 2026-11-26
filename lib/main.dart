@@ -1,7 +1,9 @@
-// Лабораторная работа №3. Список карточек.
+// Лабораторная работа №4. Лайки, SnackBar и детали.
 //
-// Вся лабораторная написана в этом одном файле, чтобы было проще.
-// На экране — список карточек, в каждой есть картинка и текст.
+// Всё по-прежнему в одном файле:
+// - на карточке есть кнопка-сердечко;
+// - при нажатии показывается SnackBar;
+// - при нажатии на саму карточку открывается экран с деталями.
 
 import 'package:flutter/material.dart';
 
@@ -70,8 +72,39 @@ const List<Book> books = <Book>[
   ),
 ];
 
-class BooksPage extends StatelessWidget {
+class BooksPage extends StatefulWidget {
   const BooksPage({super.key});
+
+  @override
+  State<BooksPage> createState() => _BooksPageState();
+}
+
+class _BooksPageState extends State<BooksPage> {
+  final Set<int> _liked = <int>{};
+
+  void _toggleLike(int index) {
+    setState(() {
+      if (!_liked.add(index)) {
+        _liked.remove(index);
+      }
+    });
+
+    final isLiked = _liked.contains(index);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(isLiked ? 'Лайк поставлен' : 'Лайк убран'),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _openDetails(Book book) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => BookDetailsPage(book: book),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,49 +128,96 @@ class BooksPage extends StatelessWidget {
         itemCount: books.length,
         itemBuilder: (BuildContext context, int index) {
           final book = books[index];
+          final isLiked = _liked.contains(index);
 
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             clipBehavior: Clip.antiAlias,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Image.asset(
-                  book.image,
-                  width: 100,
-                  height: 150,
-                  fit: BoxFit.cover,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          book.title,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          book.author,
-                          style: TextStyle(color: Colors.grey[700]),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          book.description,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+            child: InkWell(
+              onTap: () => _openDetails(book),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Image.asset(
+                    book.image,
+                    width: 100,
+                    height: 150,
+                    fit: BoxFit.cover,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            book.title,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            book.author,
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            book.description,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  IconButton(
+                    tooltip: isLiked ? 'Убрать лайк' : 'Поставить лайк',
+                    onPressed: () => _toggleLike(index),
+                    icon: Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class BookDetailsPage extends StatelessWidget {
+  const BookDetailsPage({super.key, required this.book});
+
+  final Book book;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(book.title)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: <Widget>[
+          Image.asset(book.image, height: 300, fit: BoxFit.contain),
+          const SizedBox(height: 16),
+          Text(
+            book.title,
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            book.author,
+            style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            book.description,
+            style: const TextStyle(fontSize: 16, height: 1.4),
+          ),
+        ],
       ),
     );
   }
