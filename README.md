@@ -11,7 +11,7 @@
 |---|-------|-------------|
 | 1 | `lab1` | Flutter-проект собран и запущен на Android; ФИО и группа выведены в AppBar |
 | 2 | `lab2` | Dart: классы, enum, циклы, generics, анонимные функции, `Future` и `extension` |
-| 3 | `lab3` | Список карточек книг: обложка, текст, рейтинг и жанр |
+| 3 | `lab3` | Список карточек: картинка и текст, всё в `lib/main.dart` |
 
 ## Запуск
 
@@ -27,10 +27,13 @@ flutter emulators --launch Medium_Phone_API_37.0
 flutter run -d emulator-5554
 ```
 
-## Лабораторная 2
+## Лабораторная 3
 
-Демонстрация возможностей Dart находится в `lib/lab2/dart_basics.dart`:
+Вся лабораторная написана в одном файле `lib/main.dart`: список карточек,
+в каждой карточке есть картинка и текст.
+
+Запуск на эмуляторе Android:
 
 ```bash
-dart run lib/lab2/dart_basics.dart
+flutter run -d emulator-5554
 ```
